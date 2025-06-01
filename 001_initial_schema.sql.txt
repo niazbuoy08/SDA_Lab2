@@ -1,0 +1,51 @@
+CREATE TABLE players (
+    player_id SERIAL PRIMARY KEY,
+    username TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE parts (
+    part_id SERIAL PRIMARY KEY,
+    part_type TEXT NOT NULL, -- 'Turbo', 'Suspension', 'Tire', etc.
+    name TEXT NOT NULL,
+    rarity TEXT,
+    performance_boost NUMERIC
+);
+
+CREATE TABLE cars (
+    car_id SERIAL PRIMARY KEY,
+    player_id INTEGER REFERENCES players(player_id),
+    model TEXT NOT NULL,
+    base_speed NUMERIC,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE car_parts (
+    car_id INTEGER REFERENCES cars(car_id),
+    part_id INTEGER REFERENCES parts(part_id),
+    equipped_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (car_id, part_id)
+);
+
+CREATE TABLE races (
+    race_id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL UNIQUE, -- 'Turbo Rally', 'Skyline Showdown', etc.
+    location TEXT NOT NULL, -- 'NeoTokyo', 'Skyline Bay', etc.
+    base_reward NUMERIC,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE race_participation (
+    car_id INTEGER REFERENCES cars(car_id),
+    race_id INTEGER REFERENCES races(race_id),
+    completed_at TIMESTAMP WITH TIME ZONE,
+    is_up_vote BOOLEAN, -- Will be replaced in later migration
+    PRIMARY KEY (car_id, race_id)
+);
+
+CREATE TABLE race_rewards (
+    race_id INTEGER REFERENCES races(race_id),
+    part_id INTEGER REFERENCES parts(part_id),
+    drop_chance NUMERIC,
+    PRIMARY KEY (race_id, part_id)
+);
